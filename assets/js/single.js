@@ -12,29 +12,36 @@ var getRepoName = function() {
   var queryString = document.location.search;
   // retrieve querystring, split at the "=" to create an array with the two items on either side of the "=". Then we asign the second item ([1]) to the variable "repoName"
   var repoName = queryString.split("=")[1];
-  getRepoIssues(repoName);
-  repoNameEl.textContent = repoName;
 
+  if (repoName) {
+    getRepoIssues(repoName);
+    repoNameEl.textContent = repoName;
+  } else {
+    document.location.replace("/index.html");
+  }
 }
 
 // fetch api
 var getRepoIssues = function(repo) {
   var apiUrl = "https://api.github.com/repos/" + repo + "/issues?direction=asc";
 
-  fetch(apiUrl).then(function(response) {
-      // request was successful
-    if (response.ok) {
-      response.json().then(function(data) {
-        // pass response data to dom funtion
-        displayIssues(data);
-      });
+// make a get request to url
+fetch(apiUrl).then(function(response) {
+  // request was successful
+  if (response.ok) {
+    response.json().then(function(data) {
+      displayIssues(data);
+
+      // check if api has paginated issues
       if (response.headers.get("Link")) {
         displayWarning(repo);
       }
-    } else {
-      alert("There was a problem with your request!")
-    }
-  });
+    });
+  } else {
+    // if not successful, redirect to homepage
+    document.location.replace("./index.html");
+  }
+});
 }
 
 // display api content
