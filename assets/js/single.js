@@ -1,9 +1,21 @@
 // GLOBAL VARIABLES //
 var issuesContainerEl = document.querySelector("#issues-container");
+var limitWarningEl = document.querySelector("#limit-warning")
+var repoNameEl = document.querySelector("#repo-name");
 
 
 
 // FUNCTIONS //
+
+// get repo name
+var getRepoName = function() {
+  var queryString = document.location.search;
+  // retrieve querystring, split at the "=" to create an array with the two items on either side of the "=". Then we asign the second item ([1]) to the variable "repoName"
+  var repoName = queryString.split("=")[1];
+  getRepoIssues(repoName);
+  repoNameEl.textContent = repoName;
+
+}
 
 // fetch api
 var getRepoIssues = function(repo) {
@@ -16,6 +28,9 @@ var getRepoIssues = function(repo) {
         // pass response data to dom funtion
         displayIssues(data);
       });
+      if (response.headers.get("Link")) {
+        displayWarning(repo);
+      }
     } else {
       alert("There was a problem with your request!")
     }
@@ -61,4 +76,19 @@ var displayIssues = function(issues) {
   }
 };
 
-getRepoIssues("itorres60/Urban")
+// display warning
+var displayWarning = function(repo) {
+  // add text to warning container
+  limitWarningEl.textContent = "To see more than 30 issues, visit ";
+  var linkEl = document.createElement("a");
+  linkEl.textContent = "See more Issues on GitHub.com";
+  linkEl.setAttribute("href", "https://github.com/" + repo + "/issues");
+  linkEl.setAttribute("target", "_blank");
+
+  //  append to warning container
+  limitWarningEl.appendChild(linkEl);
+}
+
+
+getRepoIssues("microsoft/activities");
+getRepoName();
